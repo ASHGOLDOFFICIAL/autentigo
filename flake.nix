@@ -17,9 +17,21 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             just
+            libargon2
+            podman
+            podman-compose
             sbt
             temurin-bin-21
           ];
+
+          shellHook = ''
+            export LD_LIBRARY_PATH="${pkgs.libargon2}/lib''${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
+
+            podman_sock="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/podman/podman.sock"
+            if [ -S "$podman_sock" ]; then
+              export DOCKER_HOST="unix://$podman_sock"
+            fi
+          '';
         };
       }
     );
