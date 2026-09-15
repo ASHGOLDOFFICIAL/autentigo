@@ -1,3 +1,5 @@
+import sbtassembly.MergeStrategy
+
 excludeLintKeys in Global ++= Set(idePackagePrefix)
 
 
@@ -15,12 +17,21 @@ inThisBuild {
       "-Werror",
       "-Xmax-inlines:64",
     ),
+    assembly / assemblyMergeStrategy := mergeStrategy,
   )
 }
 
 
+def mergeStrategy: String => MergeStrategy = {
+  case PathList("META-INF", "services", _*) => MergeStrategy.concat
+  case PathList("META-INF", _*) => MergeStrategy.discard
+  case "module-info.class"      => MergeStrategy.discard
+  case x                        => MergeStrategy.defaultMergeStrategy(x)
+}
+
+
 lazy val app = (project in file("."))
-  .aggregate(domain)
+  .aggregate(domain, errors, application)
   .settings(
     name := "app",
     idePackagePrefix := Some("org.aulune.authentigo"),
@@ -39,5 +50,43 @@ lazy val domain = (project in file("domain"))
   )
 
 
+lazy val errors = (project in file("commons/errors"))
+  .settings(
+    name := "errors",
+    idePackagePrefix := Some("org.aulune.commons.errors"),
+    libraryDependencies ++= circeDeps ++ tapirCoreDeps ++ Seq(
+      "org.scalatest" %% "scalatest" % scalatestVersion,
+      "org.typelevel" %% "cats-core" % catsVersion withSources () withJavadoc (),
+    ),
+  )
+
+
+lazy val application = (project in file("application"))
+  .dependsOn(errors)
+  .settings(
+    name := "application",
+    idePackagePrefix := Some("org.aulune.authentigo.application"),
+  )
+
+
 val catsVersion = "2.13.0"
+val circeGenericExtras = "0.14.5-RC1"
+val circeVersion = "0.14.14"
 val jmailVersion = "2.2.2"
+val scalatestVersion = "3.2.19"
+val tapirVersion = "1.11.40"
+
+resolvers += Resolver.sonatypeCentralSnapshots
+
+val circeDeps = Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser",
+).map(_ % circeVersion) ++ Seq(
+  "io.circe" %% "circe-generic-extras" % circeGenericExtras,
+)
+
+val tapirCoreDeps = Seq(
+  "com.softwaremill.sttp.tapir" %% "tapir-core",
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
+).map(_ % tapirVersion)
