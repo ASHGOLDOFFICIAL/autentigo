@@ -1,4 +1,5 @@
 package org.aulune.commons
+package errors
 package adapters.tapir
 
 
