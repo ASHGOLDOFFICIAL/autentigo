@@ -31,7 +31,7 @@ def mergeStrategy: String => MergeStrategy = {
 
 
 lazy val app = (project in file("."))
-  .aggregate(domain, errors, application)
+  .aggregate(domain, errors, application, api)
   .settings(
     name := "app",
     idePackagePrefix := Some("org.aulune.authentigo"),
@@ -66,6 +66,17 @@ lazy val application = (project in file("application"))
   .settings(
     name := "application",
     idePackagePrefix := Some("org.aulune.authentigo.application"),
+  )
+
+
+lazy val api = (project in file("api"))
+  .dependsOn(application)
+  .settings(
+    name := "api",
+    idePackagePrefix := Some("org.aulune.authentigo.api"),
+    libraryDependencies ++= circeDeps ++ tapirCoreDeps ++ Seq(
+      "org.typelevel" %% "cats-core" % catsVersion withSources () withJavadoc (),
+    ),
   )
 
 
