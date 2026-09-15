@@ -1,0 +1,21 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IDE ###
+.idea/
+.vscode/
+.metals/
+.bloop/
+.scala-build/
+metals.sbt
+
+### Scala ###
+.bsp/
+
+### Temporary files ###
+temp/
+
+### Secrets ###
+.env
