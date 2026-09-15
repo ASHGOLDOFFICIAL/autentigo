@@ -31,7 +31,7 @@ def mergeStrategy: String => MergeStrategy = {
 
 
 lazy val app = (project in file("."))
-  .aggregate(domain, errors, application, api)
+  .aggregate(domain, errors, testing, migrations, application, adapters, api)
   .settings(
     name := "app",
     idePackagePrefix := Some("org.aulune.authentigo"),
@@ -69,6 +69,58 @@ lazy val application = (project in file("application"))
   )
 
 
+lazy val migrations = (project in file("migrations")).settings(
+  name := "migrations",
+  idePackagePrefix := Some("org.aulune.migrations"),
+  libraryDependencies ++= Seq(
+    "org.liquibase" % "liquibase-core" % liquibaseVersion,
+    "org.typelevel" %% "cats-effect" % catsEffectVersion withSources () withJavadoc (),
+  ),
+)
+
+
+lazy val testing = (project in file("commons/testing"))
+  .dependsOn(migrations)
+  .settings(
+    name := "testing",
+    idePackagePrefix := Some("org.aulune.commons.testing"),
+    libraryDependencies ++= Seq(
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % testcontainersVersion,
+      "com.dimafeng" %% "testcontainers-scala-scalatest"  % testcontainersVersion,
+      "org.postgresql" % "postgresql" % postgresqlVersion,
+      "org.scalatest" %% "scalatest"  % scalatestVersion,
+      "org.tpolecat" %% "doobie-core"   % doobieVersion,
+      "org.tpolecat" %% "doobie-hikari" % doobieVersion,
+      "org.typelevel" %% "cats-effect" % catsEffectVersion withSources () withJavadoc (),
+      "org.typelevel" %% "cats-effect-testing-scalatest" % catsEffectTestingVersion,
+    ),
+  )
+
+
+lazy val adapters = (project in file("adapters"))
+  .dependsOn(domain, application)
+  .dependsOn(testing % Test)
+  .settings(
+    name := "adapters",
+    idePackagePrefix := Some("org.aulune.authentigo.adapters"),
+    libraryDependencies ++= circeDeps ++ Seq(
+      "ch.qos.logback"        % "logback-classic" % logbackVersion % Test,
+      "com.github.jwt-scala" %% "jwt-circe"        % jwtVersion,
+      "de.mkammerer"          % "argon2-jvm"       % argon2Version,
+      "org.postgresql"        % "postgresql"       % postgresqlVersion,
+      "org.scalamock" %% "scalamock" % scalamockVersion % Test,
+      "org.scalatest" %% "scalatest" % scalatestVersion % Test,
+      "org.tpolecat" %% "doobie-core"     % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+      "org.typelevel" %% "cats-core" % catsVersion withSources () withJavadoc (),
+      "org.typelevel" %% "cats-effect" % catsEffectVersion withSources () withJavadoc (),
+      "org.typelevel" %% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
+      "org.typelevel" %% "log4cats-core"   % log4catsVersion,
+      "org.typelevel" %% "log4cats-slf4j"  % log4catsVersion % Test,
+    ),
+  )
+
+
 lazy val api = (project in file("api"))
   .dependsOn(application)
   .settings(
@@ -80,12 +132,23 @@ lazy val api = (project in file("api"))
   )
 
 
+val argon2Version = "2.12"
+val catsEffectTestingVersion = "1.6.0"
+val catsEffectVersion = "3.6.3"
 val catsVersion = "2.13.0"
 val circeGenericExtras = "0.14.5-RC1"
 val circeVersion = "0.14.14"
+val doobieVersion = "1.0.0-RC9"
 val jmailVersion = "2.2.2"
+val jwtVersion = "11.0.2"
+val liquibaseVersion = "4.29.2"
+val log4catsVersion = "2.7.1"
+val logbackVersion = "1.5.18"
+val postgresqlVersion = "42.7.7"
+val scalamockVersion = "7.4.1"
 val scalatestVersion = "3.2.19"
 val tapirVersion = "1.11.40"
+val testcontainersVersion = "0.44.1"
 
 resolvers += Resolver.sonatypeCentralSnapshots
 
