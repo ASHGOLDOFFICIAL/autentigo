@@ -1,4 +1,5 @@
-package org.aulune.migrations
+package org.aulune.authentigo
+package migrations
 
 
 import cats.effect.Sync
