@@ -20,8 +20,24 @@ inThisBuild {
 
 
 lazy val app = (project in file("."))
+  .aggregate(domain)
   .settings(
     name := "app",
     idePackagePrefix := Some("org.aulune.authentigo"),
     assembly / mainClass := Some("org.aulune.authentigo.App"),
   )
+
+
+lazy val domain = (project in file("domain"))
+  .settings(
+    name := "domain",
+    idePackagePrefix := Some("org.aulune.authentigo.domain"),
+    libraryDependencies ++= Seq(
+      "com.sanctionco.jmail" % "jmail"     % jmailVersion,
+      "org.typelevel"       %% "cats-core" % catsVersion withSources () withJavadoc (),
+    ),
+  )
+
+
+val catsVersion = "2.13.0"
+val jmailVersion = "2.2.2"
