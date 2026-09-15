@@ -1,4 +1,5 @@
-package org.aulune.commons.errors
+package org.aulune.commons
+package errors
 
 
 import cats.Functor

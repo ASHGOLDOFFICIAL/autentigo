@@ -1,21 +1,26 @@
 package org.aulune.commons
+package errors
 package adapters.circe
 
 
-import adapters.circe.CirceUtils.config
 import errors.{ErrorDetails, ErrorInfo, ErrorReason, ErrorResponse, ErrorStatus}
 
+import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
 import io.circe.{Decoder, Encoder}
 
 import scala.util.Failure
 
 
-/** [[Decoder]] and [[Encoder]] instances for [[ErrorResponse]]. */
+/** [[Decoder]] and [[Encoder]] instances for [[ErrorResponse]]. Derived
+ *  [[Encoder]]s require a [[Configuration]] in scope, supplied by the caller.
+ */
 object ErrorResponseCodecs:
   given Decoder[ErrorResponse] = Decoder.decodeString
     .emapTry(_ => Failure(new UnsupportedOperationException()))
-  given Encoder[ErrorResponse] = deriveConfiguredEncoder
+  given (using
+      config: Configuration,
+  ): Encoder[ErrorResponse] = deriveConfiguredEncoder
 
   private given Decoder[ErrorStatus] = Decoder.decodeString
     .emapTry(_ => Failure(new UnsupportedOperationException()))
@@ -23,11 +28,15 @@ object ErrorResponseCodecs:
 
   private given Decoder[ErrorDetails] = Decoder.decodeString
     .emapTry(_ => Failure(new UnsupportedOperationException()))
-  private given Encoder[ErrorDetails] = deriveConfiguredEncoder
+  private given (using
+      config: Configuration,
+  ): Encoder[ErrorDetails] = deriveConfiguredEncoder
 
   private given Decoder[ErrorInfo] = Decoder.decodeString
     .emapTry(_ => Failure(new UnsupportedOperationException()))
-  private given Encoder[ErrorInfo] = deriveConfiguredEncoder
+  private given (using
+      config: Configuration,
+  ): Encoder[ErrorInfo] = deriveConfiguredEncoder
 
   private given Decoder[ErrorReason] = Decoder.decodeString
     .emapTry(_ => Failure(new UnsupportedOperationException()))
