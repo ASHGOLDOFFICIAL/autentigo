@@ -32,10 +32,18 @@ def mergeStrategy: String => MergeStrategy = {
 
 lazy val app = (project in file("."))
   .aggregate(domain, errors, testing, migrations, application, adapters, api)
+  .dependsOn(adapters, api, migrations)
   .settings(
     name := "app",
     idePackagePrefix := Some("org.aulune.authentigo"),
     assembly / mainClass := Some("org.aulune.authentigo.App"),
+    libraryDependencies ++= http4sDeps ++ tapirDeps ++ Seq(
+      "ch.qos.logback"         % "logback-classic" % logbackVersion,
+      "com.github.pureconfig" %% "pureconfig-core" % pureconfigVersion,
+      "org.typelevel" %% "cats-core" % catsVersion withSources () withJavadoc (),
+      "org.typelevel" %% "cats-effect" % catsEffectVersion withSources () withJavadoc (),
+      "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
+    ),
   )
 
 
@@ -142,15 +150,23 @@ val doobieVersion = "1.0.0-RC9"
 val jmailVersion = "2.2.2"
 val jwtVersion = "11.0.2"
 val liquibaseVersion = "4.29.2"
+val http4sVersion = "0.23.30"
 val log4catsVersion = "2.7.1"
 val logbackVersion = "1.5.18"
 val postgresqlVersion = "42.7.7"
+val pureconfigVersion = "0.17.9"
 val scalamockVersion = "7.4.1"
 val scalatestVersion = "3.2.19"
 val tapirVersion = "1.11.40"
 val testcontainersVersion = "0.44.1"
 
 resolvers += Resolver.sonatypeCentralSnapshots
+
+val http4sDeps = Seq(
+  "org.http4s" %% "http4s-ember-server",
+  "org.http4s" %% "http4s-dsl",
+  "org.http4s" %% "http4s-circe",
+).map(_ % http4sVersion)
 
 val circeDeps = Seq(
   "io.circe" %% "circe-core",
@@ -163,4 +179,11 @@ val circeDeps = Seq(
 val tapirCoreDeps = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-core",
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
+).map(_ % tapirVersion)
+
+val tapirDeps = tapirCoreDeps ++ Seq(
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server",
+  "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs",
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui",
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle",
 ).map(_ % tapirVersion)
