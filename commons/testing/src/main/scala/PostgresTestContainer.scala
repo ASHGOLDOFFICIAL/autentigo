@@ -8,7 +8,7 @@ import com.dimafeng.testcontainers.scalatest.TestContainerForEach
 import com.zaxxer.hikari.HikariConfig
 import doobie.hikari.HikariTransactor
 import doobie.util.transactor.Transactor
-import org.aulune.migrations.Migrations
+import org.aulune.authentigo.migrations.Migrations
 import org.scalatest.Assertion
 import org.scalatest.freespec.AsyncFreeSpec
 import org.testcontainers.utility.DockerImageName

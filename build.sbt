@@ -71,7 +71,7 @@ lazy val application = (project in file("application"))
 
 lazy val migrations = (project in file("migrations")).settings(
   name := "migrations",
-  idePackagePrefix := Some("org.aulune.migrations"),
+  idePackagePrefix := Some("org.aulune.authentigo.migrations"),
   libraryDependencies ++= Seq(
     "org.liquibase" % "liquibase-core" % liquibaseVersion,
     "org.typelevel" %% "cats-effect" % catsEffectVersion withSources () withJavadoc (),
