@@ -11,11 +11,18 @@ COPY project ./project
 COPY build.sbt .
 RUN sbt update
 
+COPY domain ./domain
+COPY commons ./commons
+COPY migrations ./migrations
+COPY application ./application
+COPY adapters ./adapters
+COPY api ./api
 COPY src ./src
 RUN sbt app/assembly
 
 
 FROM docker.io/library/eclipse-temurin:${JRE_TAG}-jre-alpine-${ALPINE_TAG} AS runtime
+RUN apk add --no-cache argon2-libs
 WORKDIR /usr/app
 COPY --from=build /build/target/scala-3.3.6/*.jar ./app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

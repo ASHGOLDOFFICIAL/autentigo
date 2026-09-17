@@ -114,7 +114,7 @@ lazy val adapters = (project in file("adapters"))
     libraryDependencies ++= circeDeps ++ Seq(
       "ch.qos.logback"        % "logback-classic" % logbackVersion % Test,
       "com.github.jwt-scala" %% "jwt-circe"        % jwtVersion,
-      "de.mkammerer"          % "argon2-jvm"       % argon2Version,
+      "de.mkammerer"          % "argon2-jvm-nolibs" % argon2Version,
       "org.postgresql"        % "postgresql"       % postgresqlVersion,
       "org.scalamock" %% "scalamock" % scalamockVersion % Test,
       "org.scalatest" %% "scalatest" % scalatestVersion % Test,
