@@ -4,6 +4,7 @@ package user
 
 
 import UserMetas.given
+import domain.token.TotpSecret
 import domain.user.{Email, User, UserConstraint, UserId, UserRepository}
 
 import cats.effect.MonadCancelThrow
@@ -53,11 +54,12 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
   private given Meta[UserId] = Meta[UUID].imap(UserId.apply)(identity)
 
   override def persist(user: User): F[Either[UserConstraint, User]] = sql"""
-      |INSERT INTO autentigo.users (id, email, password)
+      |INSERT INTO autentigo.users (id, email, password, totp_secret)
       |VALUES (
       |  ${user.id},
       |  ${user.email},
-      |  ${user.hashedPassword}
+      |  ${user.hashedPassword},
+      |  ${user.totpSecret}
       |)""".stripMargin.update.run
     .as(user)
     .transact(transactor)
@@ -70,7 +72,7 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
     }
 
   override def get(id: UserId): F[Option[User]] = sql"""
-      |SELECT id, email, password
+      |SELECT id, email, password, totp_secret
       |FROM autentigo.users
       |WHERE id = $id""".stripMargin
     .query[SelectResult]
@@ -79,7 +81,7 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
     .transact(transactor)
 
   override def getByEmail(email: Email): F[Option[User]] = sql"""
-    |SELECT id, email, password
+    |SELECT id, email, password, totp_secret
     |FROM autentigo.users
     |WHERE email = $email""".stripMargin
     .query[SelectResult]
@@ -87,10 +89,24 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
     .option
     .transact(transactor)
 
+  override def updatePassword(
+      id: UserId,
+      newHashedPassword: String,
+      newTotpSecret: TotpSecret,
+      expectedTotpSecret: TotpSecret,
+  ): F[Boolean] = sql"""
+      |UPDATE autentigo.users
+      |SET password = $newHashedPassword, totp_secret = $newTotpSecret
+      |WHERE id = $id AND totp_secret = $expectedTotpSecret
+      |""".stripMargin.update.run
+    .transact(transactor)
+    .map(_ > 0)
+
   private type SelectResult = (
       UserId,
       Email,
       Option[String],
+      TotpSecret,
   )
 
   /** Makes users from given data. */
@@ -98,4 +114,9 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
       id: UserId,
       email: Email,
       password: Option[String],
-  ) = User.unsafe(id = id, email = email, hashedPassword = password)
+      totpSecret: TotpSecret,
+  ) = User.unsafe(
+    id = id,
+    email = email,
+    hashedPassword = password,
+    totpSecret = totpSecret)

@@ -5,8 +5,14 @@ package user
 
 import session.AccessTokenService
 
-import application.user.{CreateUserRequest, UserInfo, UserService}
-import domain.token.TokenString
+import application.user.{
+  ConfirmPasswordResetRequest,
+  CreateUserRequest,
+  RequestPasswordResetRequest,
+  UserInfo,
+  UserService,
+}
+import domain.token.{TokenString, TotpSecret, VerificationCode}
 import domain.user.{
   Email,
   User,
@@ -31,12 +37,16 @@ import org.typelevel.log4cats.{Logger, LoggerFactory}
  *  @param hasher password hasher.
  *  @param accessTokenService service used to decode the caller's access token
  *    for the self-only [[getUser]] check.
+ *  @param codeService generates and verifies password-reset codes.
+ *  @param emailSender sends password-reset codes to users.
  *  @tparam F effect type.
  */
 final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
     repo: UserRepository[F],
     hasher: PasswordHasher[F],
     accessTokenService: AccessTokenService[F],
+    codeService: VerificationCodeService[F],
+    emailSender: EmailSender[F],
 ) extends UserService[F]:
 
   private given Logger[F] = LoggerFactory[F].getLogger
@@ -46,7 +56,8 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
   ): F[Either[ErrorResponse, UserInfo]] = (for
     _ <- eitherTLogger.info(s"User creation request: $request")
     id <- EitherT.right(UUIDGen[F].randomUUID.map(UserId.apply))
-    user <- EitherT.fromEither[F](buildUser(id, request))
+    totpSecret <- EitherT.right[ErrorResponse](codeService.generateSecret)
+    user <- EitherT.fromEither[F](buildUser(id, totpSecret, request))
     hashed <- EitherT.right(hasher.hashPassword(request.password))
     withPassword <- EitherT.fromEither[F](
       user
@@ -83,20 +94,79 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
       UserServiceErrorResponses.UserNotFound)
   yield toUserInfo(user)).value.handleErrorWith(handleInternal)
 
+  override def requestPasswordReset(
+      request: RequestPasswordResetRequest,
+  ): F[Either[ErrorResponse, Unit]] = (for
+    _ <- eitherTLogger.info(s"Password reset requested for: ${request.email}")
+    maybeUser <- EitherT.right[ErrorResponse](Email(request.email) match
+      case Some(email) => repo.getByEmail(email)
+      case None        => None.pure[F])
+    _ <- EitherT.right[ErrorResponse](maybeUser match
+      case Some(user) => issueAndSendCode(user)
+      case None       => ().pure[F])
+  yield ()).value.handleErrorWith(handleInternal)
+
+  override def confirmPasswordReset(
+      request: ConfirmPasswordResetRequest,
+  ): F[Either[ErrorResponse, Unit]] = (for
+    _ <-
+      eitherTLogger.info(s"Password reset confirmation for: ${request.email}")
+    email <- EitherT.fromOption(
+      Email(request.email),
+      UserServiceErrorResponses.InvalidPasswordReset)
+    user <- EitherT.fromOptionF(
+      repo.getByEmail(email),
+      UserServiceErrorResponses.InvalidPasswordReset)
+    code <- EitherT.fromOption(
+      VerificationCode(request.code),
+      UserServiceErrorResponses.InvalidPasswordReset)
+    valid <- EitherT.right[ErrorResponse](
+      codeService.verifyCode(user.totpSecret, code))
+    _ <-
+      EitherT.cond[F](valid, (), UserServiceErrorResponses.InvalidPasswordReset)
+    newHash <-
+      EitherT.right[ErrorResponse](hasher.hashPassword(request.newPassword))
+    newSecret <- EitherT.right[ErrorResponse](codeService.generateSecret)
+    updated <- EitherT.right[ErrorResponse](
+      repo.updatePassword(
+        user.id,
+        newHash,
+        newSecret,
+        expectedTotpSecret = user.totpSecret))
+    _ <- EitherT.cond[F](
+      updated,
+      (),
+      UserServiceErrorResponses.InvalidPasswordReset)
+    _ <- eitherTLogger.info(s"Password reset completed for user: ${user.id}")
+  yield ()).value.handleErrorWith(handleInternal)
+
+  /** Generates a reset code for `user` and emails it to them. */
+  private def issueAndSendCode(user: User): F[Unit] =
+    for
+      code <- codeService.generateCode(user.totpSecret)
+      _ <- emailSender.send(
+        user.email,
+        PasswordResetEmail.Subject,
+        PasswordResetEmail.body(code))
+    yield ()
+
   /** Makes [[UserInfo]] out of a domain [[User]]. */
   private def toUserInfo(user: User): UserInfo =
     UserInfo(id = user.id, email = user.email)
 
   /** Builds a new user from a registration request.
    *  @param id ID to assign to the new user.
+   *  @param totpSecret secret to use for the new user's password-reset codes.
    *  @param request registration request.
    */
   private def buildUser(
       id: UserId,
+      totpSecret: TotpSecret,
       request: CreateUserRequest,
   ): Either[ErrorResponse, User] = Email(request.email)
     .toValidNec(UserValidationError.InvalidEmail)
-    .andThen(email => User.create(id = id, email = email))
+    .andThen(email =>
+      User.create(id = id, email = email, totpSecret = totpSecret))
     .toEither
     .leftMap(UserServiceErrorResponses.invalidRegistrationDetails)
 

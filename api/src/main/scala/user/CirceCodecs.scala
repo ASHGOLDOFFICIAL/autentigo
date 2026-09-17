@@ -9,7 +9,12 @@ import io.circe.generic.extras.semiauto.{
   deriveConfiguredEncoder,
 }
 import io.circe.{Decoder, Encoder}
-import application.user.{CreateUserRequest, UserInfo}
+import application.user.{
+  ConfirmPasswordResetRequest,
+  CreateUserRequest,
+  RequestPasswordResetRequest,
+  UserInfo,
+}
 
 
 /** [[Decoder]] and [[Encoder]] instances for [[UserController]]. */
@@ -21,3 +26,9 @@ private[user] object CirceCodecs:
 
   given Encoder[UserInfo] = deriveConfiguredEncoder
   given Decoder[UserInfo] = deriveConfiguredDecoder
+
+  given Encoder[RequestPasswordResetRequest] = deriveConfiguredEncoder
+  given Decoder[RequestPasswordResetRequest] = deriveConfiguredDecoder
+
+  given Encoder[ConfirmPasswordResetRequest] = deriveConfiguredEncoder
+  given Decoder[ConfirmPasswordResetRequest] = deriveConfiguredDecoder

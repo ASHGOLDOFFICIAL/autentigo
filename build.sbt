@@ -24,6 +24,14 @@ inThisBuild {
 
 def mergeStrategy: String => MergeStrategy = {
   case PathList("META-INF", "services", _*) => MergeStrategy.concat
+  case PathList(
+         "META-INF",
+         "maven",
+         "org.webjars",
+         "swagger-ui",
+         "pom.properties") => MergeStrategy.singleOrError
+  case PathList("META-INF", "resources", "webjars", "swagger-ui", _*) =>
+    MergeStrategy.singleOrError
   case PathList("META-INF", _*) => MergeStrategy.discard
   case "module-info.class"      => MergeStrategy.discard
   case x                        => MergeStrategy.defaultMergeStrategy(x)
@@ -113,8 +121,12 @@ lazy val adapters = (project in file("adapters"))
     idePackagePrefix := Some("org.aulune.authentigo.adapters"),
     libraryDependencies ++= circeDeps ++ Seq(
       "ch.qos.logback"        % "logback-classic" % logbackVersion % Test,
+      "com.comcast"          %% "ip4s-core"        % ip4sVersion,
+      "com.eatthepath"        % "java-otp"         % javaOtpVersion,
       "com.github.jwt-scala" %% "jwt-circe"        % jwtVersion,
       "de.mkammerer"          % "argon2-jvm-nolibs" % argon2Version,
+      "jakarta.mail"          % "jakarta.mail-api" % jakartaMailVersion,
+      "org.eclipse.angus"     % "angus-mail"       % angusMailVersion % Runtime,
       "org.postgresql"        % "postgresql"       % postgresqlVersion,
       "org.scalamock" %% "scalamock" % scalamockVersion % Test,
       "org.scalatest" %% "scalatest" % scalatestVersion % Test,
@@ -140,6 +152,7 @@ lazy val api = (project in file("api"))
   )
 
 
+val angusMailVersion = "2.0.4"
 val argon2Version = "2.12"
 val catsEffectTestingVersion = "1.6.0"
 val catsEffectVersion = "3.6.3"
@@ -147,6 +160,9 @@ val catsVersion = "2.13.0"
 val circeGenericExtras = "0.14.5-RC1"
 val circeVersion = "0.14.14"
 val doobieVersion = "1.0.0-RC9"
+val ip4sVersion = "3.6.0"
+val jakartaMailVersion = "2.1.3"
+val javaOtpVersion = "1.0.0"
 val jmailVersion = "2.2.2"
 val jwtVersion = "11.0.2"
 val liquibaseVersion = "4.29.2"

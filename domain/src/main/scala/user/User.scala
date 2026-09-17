@@ -4,6 +4,8 @@ package user
 
 import user.User.ValidationResult
 
+import token.TotpSecret
+
 import cats.data.{Validated, ValidatedNec}
 import cats.syntax.all.given
 
@@ -12,21 +14,25 @@ import cats.syntax.all.given
  *  @param id user's unique UUID.
  *  @param email unique email.
  *  @param hashedPassword password hash (if user has it).
+ *  @param totpSecret secret used to generate and verify password-reset codes.
  */
 final case class User private (
     id: UserId,
     email: Email,
     hashedPassword: Option[String],
+    totpSecret: TotpSecret,
 ):
   /** Copies with validation. */
   def update(
       id: UserId = id,
       email: Email = email,
       hashedPassword: Option[String] = hashedPassword,
+      totpSecret: TotpSecret = totpSecret,
   ): ValidationResult[User] = User(
     id = id,
     email = email,
     hashedPassword = hashedPassword,
+    totpSecret = totpSecret,
   )
 
 
@@ -37,15 +43,18 @@ object User:
    *  `None`.
    *  @param id user's UUID.
    *  @param email unique email.
+   *  @param totpSecret secret used to generate and verify password-reset codes.
    *  @return user validation result.
    */
   def create(
       id: UserId,
       email: Email,
+      totpSecret: TotpSecret,
   ): ValidationResult[User] = User(
     id = id,
     email = email,
     hashedPassword = None,
+    totpSecret = totpSecret,
   )
 
   /** Returns a user if all given arguments are valid.
@@ -57,8 +66,14 @@ object User:
       id: UserId,
       email: Email,
       hashedPassword: Option[String],
+      totpSecret: TotpSecret,
   ): ValidationResult[User] = validateState(
-    new User(id = id, email = email, hashedPassword = hashedPassword))
+    new User(
+      id = id,
+      email = email,
+      hashedPassword = hashedPassword,
+      totpSecret = totpSecret,
+    ))
 
   /** Unsafe constructor for always valid boundary.
    *  @throws UserValidationError if arguments are invalid.
@@ -67,7 +82,13 @@ object User:
       id: UserId,
       email: Email,
       hashedPassword: Option[String],
-  ): User = User(id = id, email = email, hashedPassword = hashedPassword) match
+      totpSecret: TotpSecret,
+  ): User = User(
+    id = id,
+    email = email,
+    hashedPassword = hashedPassword,
+    totpSecret = totpSecret,
+  ) match
     case Validated.Valid(a)   => a
     case Validated.Invalid(e) => throw e.head
 

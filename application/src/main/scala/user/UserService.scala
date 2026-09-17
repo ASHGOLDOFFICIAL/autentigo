@@ -45,3 +45,26 @@ trait UserService[F[_]]:
       id: String,
       accessToken: String,
   ): F[Either[ErrorResponse, UserInfo]]
+
+  /** Requests a password reset code be emailed to the given address.
+   *
+   *  To avoid leaking which emails are registered, this always succeeds with
+   *  the same response whether or not the email belongs to a registered user.
+   *
+   *  @param request request containing the target email.
+   */
+  def requestPasswordReset(
+      request: RequestPasswordResetRequest,
+  ): F[Either[ErrorResponse, Unit]]
+
+  /** Confirms a password reset using an emailed code and sets a new password.
+   *
+   *  [[UserServiceError.InvalidPasswordReset]] will be returned if the email
+   *  isn't registered, or if the code is missing, doesn't match, or has
+   *  expired.
+   *
+   *  @param request request with email, code, and new password.
+   */
+  def confirmPasswordReset(
+      request: ConfirmPasswordResetRequest,
+  ): F[Either[ErrorResponse, Unit]]

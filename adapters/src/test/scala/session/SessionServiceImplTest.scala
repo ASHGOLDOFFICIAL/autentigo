@@ -9,7 +9,7 @@ import application.session.{
   SessionService,
   SessionServiceError,
 }
-import domain.token.TokenString
+import domain.token.{TokenString, TotpSecret}
 import domain.user.{Email, User, UserId, UserRepository}
 
 import cats.effect.IO
@@ -66,6 +66,7 @@ final class SessionServiceImplTest
     id = userId,
     email = email,
     hashedPassword = None,
+    totpSecret = TotpSecret.unsafe("totp_secret"),
   )
   private val session = Session(
     accessToken = accessToken,
