@@ -6,7 +6,8 @@ import user.User.ValidationResult
 
 import token.TotpSecret
 
-import cats.data.{Validated, ValidatedNec}
+import cats.data.Validated
+import cats.data.ValidatedNec
 import cats.syntax.all.given
 
 
@@ -73,7 +74,8 @@ object User:
       email = email,
       hashedPassword = hashedPassword,
       totpSecret = totpSecret,
-    ))
+    ),
+  )
 
   /** Unsafe constructor for always valid boundary.
    *  @throws UserValidationError if arguments are invalid.

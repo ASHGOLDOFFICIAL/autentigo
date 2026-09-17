@@ -20,6 +20,6 @@ object Email:
    *  @param email email.
    *  @throws IllegalArgumentException if invalid arguments are given.
    */
-  def unsafe(email: String): Email = Email(email) match
+  def unsafe(email: String): Email = apply(email) match
     case Some(value) => value
     case None        => throw new IllegalArgumentException()

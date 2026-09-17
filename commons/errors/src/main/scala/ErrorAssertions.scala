@@ -5,7 +5,9 @@ package errors
 import cats.Functor
 import cats.syntax.all.given
 import org.aulune.commons.errors.ErrorStatus.Internal
-import org.aulune.commons.errors.{ErrorReason, ErrorResponse, ErrorStatus}
+import org.aulune.commons.errors.ErrorReason
+import org.aulune.commons.errors.ErrorResponse
+import org.aulune.commons.errors.ErrorStatus
 import org.scalatest.Assertion
 import org.scalatest.Assertions.fail
 import org.scalatest.matchers.should.Matchers.shouldBe

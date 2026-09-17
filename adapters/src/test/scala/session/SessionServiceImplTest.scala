@@ -3,24 +3,24 @@ package adapters
 package session
 
 
-import application.session.{
-  CreateSessionRequest,
-  Session,
-  SessionService,
-  SessionServiceError,
-}
-import domain.token.{TokenString, TotpSecret}
-import domain.user.{Email, User, UserId, UserRepository}
+import application.session.CreateSessionRequest
+import application.session.Session
+import application.session.SessionService
+import application.session.SessionServiceError
+import domain.token.TokenString
+import domain.token.TotpSecret
+import domain.user.Email
+import domain.user.User
+import domain.user.UserId
+import domain.user.UserRepository
 
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.syntax.all.given
 import org.aulune.commons.errors.ErrorStatus
-import org.aulune.commons.errors.ErrorAssertions.{
-  assertDomainError,
-  assertErrorStatus,
-  assertInternalError,
-}
+import org.aulune.commons.errors.ErrorAssertions.assertDomainError
+import org.aulune.commons.errors.ErrorAssertions.assertErrorStatus
+import org.aulune.commons.errors.ErrorAssertions.assertInternalError
 import org.scalamock.scalatest.AsyncMockFactory
 import org.scalatest.Assertion
 import org.scalatest.freespec.AsyncFreeSpec
@@ -52,7 +52,8 @@ final class SessionServiceImplTest
       accessTokenService = mockAccess,
       idTokenService = mockId,
       refreshTokenService = mockRefresh,
-    ))
+    ),
+  )
 
   private val userId = UserId.unsafe("00000000-0000-0000-0000-000000000001")
   private val email = Email.unsafe("user@example.com")

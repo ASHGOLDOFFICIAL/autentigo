@@ -7,12 +7,10 @@ import cats.data.NonEmptyChain
 import cats.syntax.all.given
 import application.user.UserServiceError
 import domain.user.UserValidationError
-import org.aulune.commons.errors.{
-  ErrorDetails,
-  ErrorInfo,
-  ErrorResponse,
-  ErrorStatus,
-}
+import org.aulune.commons.errors.ErrorDetails
+import org.aulune.commons.errors.ErrorInfo
+import org.aulune.commons.errors.ErrorResponse
+import org.aulune.commons.errors.ErrorStatus
 
 
 /** Error responses for [[user.UserServiceImpl]]. */
@@ -40,7 +38,8 @@ object UserServiceErrorResponses:
     message = "Account with given info doesn't exist. Maybe it was deleted.",
     details = ErrorDetails(
       info =
-        ErrorInfo(reason = UserServiceError.UserNotFound, domain = Domain).some),
+        ErrorInfo(reason = UserServiceError.UserNotFound, domain = Domain).some,
+    ),
   )
 
   /** A user with the same ID already exists. */
@@ -50,7 +49,8 @@ object UserServiceErrorResponses:
     details = ErrorDetails(
       info = ErrorInfo(
         reason = UserServiceError.UserAlreadyExists,
-        domain = Domain).some,
+        domain = Domain,
+      ).some,
     ),
   )
 
@@ -61,7 +61,8 @@ object UserServiceErrorResponses:
     details = ErrorDetails(
       info = ErrorInfo(
         reason = UserServiceError.EmailAlreadyTaken,
-        domain = Domain).some,
+        domain = Domain,
+      ).some,
     ),
   )
 
@@ -74,7 +75,8 @@ object UserServiceErrorResponses:
     details = ErrorDetails(
       info = ErrorInfo(
         reason = UserServiceError.InvalidPasswordReset,
-        domain = Domain).some,
+        domain = Domain,
+      ).some,
     ),
   )
 

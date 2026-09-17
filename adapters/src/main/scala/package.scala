@@ -1,6 +1,10 @@
 package org.aulune.authentigo.adapters
 
-import org.aulune.commons.errors.{ErrorDetails, ErrorResponse, ErrorStatus}
+
+import org.aulune.commons.errors.ErrorDetails
+import org.aulune.commons.errors.ErrorResponse
+import org.aulune.commons.errors.ErrorStatus
+
 
 /** Error domain shared by all `authentigo` service error responses. */
 private[adapters] val Domain = "org.aulune.authentigo"

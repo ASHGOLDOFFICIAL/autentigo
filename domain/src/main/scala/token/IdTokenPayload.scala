@@ -1,7 +1,9 @@
 package org.aulune.authentigo.domain
 package token
 
-import user.{Email, UserId}
+
+import user.Email
+import user.UserId
 
 
 /** ID token payload.

@@ -4,20 +4,16 @@ package user
 
 
 import CirceCodecs.given
-import Examples.{
-  ConfirmPasswordResetRequestExample,
-  CreateUserRequestExample,
-  RequestPasswordResetRequestExample,
-  UserInfoExample,
-}
+import Examples.ConfirmPasswordResetRequestExample
+import Examples.CreateUserRequestExample
+import Examples.RequestPasswordResetRequestExample
+import Examples.UserInfoExample
 import TapirSchemas.given
-import org.aulune.authentigo.application.user.{
-  ConfirmPasswordResetRequest,
-  CreateUserRequest,
-  RequestPasswordResetRequest,
-  UserInfo,
-  UserService,
-}
+import org.aulune.authentigo.application.user.ConfirmPasswordResetRequest
+import org.aulune.authentigo.application.user.CreateUserRequest
+import org.aulune.authentigo.application.user.RequestPasswordResetRequest
+import org.aulune.authentigo.application.user.UserInfo
+import org.aulune.authentigo.application.user.UserService
 import org.aulune.commons.errors.adapters.circe.ErrorResponseCodecs.given
 import org.aulune.commons.errors.adapters.tapir.ErrorResponseSchemas.given
 import org.aulune.commons.errors.adapters.tapir.ErrorStatusCodeMapper
@@ -28,7 +24,11 @@ import cats.syntax.all.given
 import sttp.model.StatusCode
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.ServerEndpoint
-import sttp.tapir.{auth, endpoint, path, statusCode, stringToPath}
+import sttp.tapir.auth
+import sttp.tapir.endpoint
+import sttp.tapir.path
+import sttp.tapir.statusCode
+import sttp.tapir.stringToPath
 
 
 /** Controller with Tapir endpoints for the `users` resource.
@@ -43,12 +43,18 @@ final class UserController[F[_]: Functor](
 
   private val createUserEndpoint = endpoint.post
     .in(collection)
-    .in(jsonBody[CreateUserRequest]
-      .description("Registration details.")
-      .example(CreateUserRequestExample))
-    .out(statusCode(StatusCode.Ok).and(jsonBody[UserInfo]
-      .description("Created user.")
-      .example(UserInfoExample)))
+    .in(
+      jsonBody[CreateUserRequest]
+        .description("Registration details.")
+        .example(CreateUserRequestExample),
+    )
+    .out(
+      statusCode(StatusCode.Ok).and(
+        jsonBody[UserInfo]
+          .description("Created user.")
+          .example(UserInfoExample),
+      ),
+    )
     .errorOut(statusCode.and(jsonBody[ErrorResponse]))
     .name("CreateUser")
     .summary("Register a new user.")
@@ -61,9 +67,13 @@ final class UserController[F[_]: Functor](
   private val getUserEndpoint = endpoint.get
     .in(collection / path[String]("user"))
     .in(auth.bearer[String]())
-    .out(statusCode(StatusCode.Ok).and(jsonBody[UserInfo]
-      .description("Requested user.")
-      .example(UserInfoExample)))
+    .out(
+      statusCode(StatusCode.Ok).and(
+        jsonBody[UserInfo]
+          .description("Requested user.")
+          .example(UserInfoExample),
+      ),
+    )
     .errorOut(statusCode.and(jsonBody[ErrorResponse]))
     .name("GetUser")
     .summary("Get a user. Restricted to the authenticated user themselves.")
@@ -75,9 +85,11 @@ final class UserController[F[_]: Functor](
 
   private val requestPasswordResetEndpoint = endpoint.post
     .in(collection + ":requestPasswordReset")
-    .in(jsonBody[RequestPasswordResetRequest]
-      .description("Email to send the reset code to.")
-      .example(RequestPasswordResetRequestExample))
+    .in(
+      jsonBody[RequestPasswordResetRequest]
+        .description("Email to send the reset code to.")
+        .example(RequestPasswordResetRequestExample),
+    )
     .out(statusCode(StatusCode.Ok))
     .errorOut(statusCode.and(jsonBody[ErrorResponse]))
     .name("RequestPasswordReset")
@@ -90,9 +102,11 @@ final class UserController[F[_]: Functor](
 
   private val confirmPasswordResetEndpoint = endpoint.post
     .in(collection + ":confirmPasswordReset")
-    .in(jsonBody[ConfirmPasswordResetRequest]
-      .description("Email, emailed code, and new password.")
-      .example(ConfirmPasswordResetRequestExample))
+    .in(
+      jsonBody[ConfirmPasswordResetRequest]
+        .description("Email, emailed code, and new password.")
+        .example(ConfirmPasswordResetRequestExample),
+    )
     .out(statusCode(StatusCode.Ok))
     .errorOut(statusCode.and(jsonBody[ErrorResponse]))
     .name("ConfirmPasswordReset")

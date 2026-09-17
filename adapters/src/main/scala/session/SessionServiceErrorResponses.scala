@@ -5,12 +5,10 @@ package session
 
 import cats.syntax.all.given
 import application.session.SessionServiceError
-import org.aulune.commons.errors.{
-  ErrorDetails,
-  ErrorInfo,
-  ErrorResponse,
-  ErrorStatus,
-}
+import org.aulune.commons.errors.ErrorDetails
+import org.aulune.commons.errors.ErrorInfo
+import org.aulune.commons.errors.ErrorResponse
+import org.aulune.commons.errors.ErrorStatus
 
 
 /** Error responses for [[session.SessionServiceImpl]]. */
@@ -22,6 +20,7 @@ object SessionServiceErrorResponses:
     details = ErrorDetails(
       info = ErrorInfo(
         reason = SessionServiceError.InvalidCredentials,
-        domain = Domain).some,
+        domain = Domain,
+      ).some,
     ),
   )

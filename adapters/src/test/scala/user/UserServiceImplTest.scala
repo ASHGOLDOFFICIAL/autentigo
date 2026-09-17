@@ -5,27 +5,29 @@ package user
 
 import session.AccessTokenService
 
-import application.user.{
-  ConfirmPasswordResetRequest,
-  CreateUserRequest,
-  RequestPasswordResetRequest,
-  UserInfo,
-  UserService,
-  UserServiceError,
-}
-import domain.token.{TokenString, TotpSecret, VerificationCode}
-import domain.user.{Email, User, UserConstraint, UserId, UserRepository}
+import application.user.ConfirmPasswordResetRequest
+import application.user.CreateUserRequest
+import application.user.RequestPasswordResetRequest
+import application.user.UserInfo
+import application.user.UserService
+import application.user.UserServiceError
+import domain.token.TokenString
+import domain.token.TotpSecret
+import domain.token.VerificationCode
+import domain.user.Email
+import domain.user.User
+import domain.user.UserConstraint
+import domain.user.UserId
+import domain.user.UserRepository
 
 import cats.effect.IO
 import cats.effect.std.UUIDGen
 import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.syntax.all.given
 import org.aulune.commons.errors.ErrorStatus
-import org.aulune.commons.errors.ErrorAssertions.{
-  assertDomainError,
-  assertErrorStatus,
-  assertInternalError,
-}
+import org.aulune.commons.errors.ErrorAssertions.assertDomainError
+import org.aulune.commons.errors.ErrorAssertions.assertErrorStatus
+import org.aulune.commons.errors.ErrorAssertions.assertInternalError
 import org.scalamock.scalatest.AsyncMockFactory
 import org.scalatest.Assertion
 import org.scalatest.freespec.AsyncFreeSpec
@@ -64,7 +66,8 @@ final class UserServiceImplTest
       accessTokenService = mockAccess,
       codeService = mockCodeService,
       emailSender = mockEmailSender,
-    ))
+    ),
+  )
 
   private val email = Email.unsafe("user@example.com")
   private val password = "password"
@@ -112,7 +115,8 @@ final class UserServiceImplTest
     .expects(
       user.email,
       PasswordResetEmail.Subject,
-      PasswordResetEmail.body(resetCode))
+      PasswordResetEmail.body(resetCode),
+    )
     .returning(returning)
 
   private def mockVerifyCode(returning: IO[Boolean]) =
@@ -254,7 +258,8 @@ final class UserServiceImplTest
 
       "succeed without a lookup for a malformed address" in stand { service =>
         for result <- service.requestPasswordReset(
-            RequestPasswordResetRequest("not-an-email"))
+            RequestPasswordResetRequest("not-an-email"),
+          )
         yield result shouldBe ().asRight
       }
 

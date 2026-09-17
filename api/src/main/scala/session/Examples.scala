@@ -4,7 +4,8 @@ package session
 
 
 import org.aulune.authentigo.application.session.CreateSessionRequest.BasicAuthentication
-import org.aulune.authentigo.application.session.{CreateSessionRequest, Session}
+import org.aulune.authentigo.application.session.CreateSessionRequest
+import org.aulune.authentigo.application.session.Session
 import sttp.tapir.EndpointIO.Example
 
 

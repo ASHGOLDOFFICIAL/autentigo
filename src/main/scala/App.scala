@@ -1,29 +1,29 @@
 package org.aulune.authentigo
 
 
-import adapters.{
-  Argon2iPasswordHasher,
-  SmtpEmailSender,
-  TotpVerificationCodeService,
-}
-import adapters.session.{
-  BasicAuthenticationHandlerImpl,
-  JwtTokenService,
-  SessionServiceImpl,
-}
-import adapters.user.{PostgresUserRepository, UserServiceImpl}
+import adapters.Argon2iPasswordHasher
+import adapters.SmtpEmailSender
+import adapters.TotpVerificationCodeService
+import adapters.session.BasicAuthenticationHandlerImpl
+import adapters.session.JwtTokenService
+import adapters.session.SessionServiceImpl
+import adapters.user.PostgresUserRepository
+import adapters.user.UserServiceImpl
 import api.session.SessionController
 import api.user.UserController
 import migrations.Migrations
 
 import cats.effect.kernel.Resource
-import cats.effect.{Async, IO, IOApp}
+import cats.effect.Async
+import cats.effect.IO
+import cats.effect.IOApp
 import cats.syntax.all.given
 import doobie.Transactor
 import fs2.io.net.Network
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
-import org.http4s.{HttpRoutes, server}
+import org.http4s.HttpRoutes
+import org.http4s.server
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import pureconfig.ConfigSource
@@ -54,7 +54,8 @@ object App extends IOApp.Simple:
         config.postgres.uri,
         config.postgres.user,
         config.postgres.password,
-        "db/changelog/db.changelog-master.xml")
+        "db/changelog/db.changelog-master.xml",
+      )
       userRepo <- PostgresUserRepository.build[IO](transactor)
       hasher <- Argon2iPasswordHasher.build[IO]
       basicHandler = new BasicAuthenticationHandlerImpl[IO](userRepo, hasher)
@@ -65,7 +66,8 @@ object App extends IOApp.Simple:
         refreshExpiration = config.services.jwt.refreshExpiration,
       )
       codeService = new TotpVerificationCodeService[IO](
-        config.services.passwordReset.expiration)
+        config.services.passwordReset.expiration,
+      )
       emailSender <- SmtpEmailSender.build[IO](
         host = config.services.smtp.host,
         port = config.services.smtp.port,
@@ -78,13 +80,15 @@ object App extends IOApp.Simple:
         hasher,
         tokenServ,
         codeService,
-        emailSender)
+        emailSender,
+      )
       sessionService = new SessionServiceImpl[IO](
         userRepo,
         basicHandler,
         tokenServ,
         tokenServ,
-        tokenServ)
+        tokenServ,
+      )
       endpoints = new UserController[IO](userService).endpoints ++
         new SessionController[IO](sessionService).endpoints
       _ <- makeServer[IO](endpoints).use(_ => IO.never)
@@ -121,8 +125,10 @@ object App extends IOApp.Simple:
       )
       .addServer(
         Server(
-          s"http://localhost:${config.app.port}/${mountPoint.mkString("/")}")
-          .description("Local development server"))
+          s"http://localhost:${config.app.port}/${mountPoint.mkString("/")}",
+        )
+          .description("Local development server"),
+      )
       .toYaml
     SwaggerUI[F](openApiYaml)
   }

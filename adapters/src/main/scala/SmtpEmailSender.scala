@@ -6,15 +6,15 @@ import domain.user.Email
 
 import cats.effect.Sync
 import cats.syntax.all.*
-import com.comcast.ip4s.{Host, Port}
-import jakarta.mail.internet.{InternetAddress, MimeMessage}
-import jakarta.mail.{
-  Authenticator,
-  Message,
-  PasswordAuthentication,
-  Session,
-  Transport,
-}
+import com.comcast.ip4s.Host
+import com.comcast.ip4s.Port
+import jakarta.mail.internet.InternetAddress
+import jakarta.mail.internet.MimeMessage
+import jakarta.mail.Authenticator
+import jakarta.mail.Message
+import jakarta.mail.PasswordAuthentication
+import jakarta.mail.Session
+import jakarta.mail.Transport
 
 import java.util.Properties
 

@@ -3,7 +3,8 @@ package org.aulune.authentigo
 
 import domain.user.Email
 
-import com.comcast.ip4s.{Host, Port}
+import com.comcast.ip4s.Host
+import com.comcast.ip4s.Port
 import pureconfig.ConfigReader
 import pureconfig.error.ExceptionThrown
 

@@ -21,6 +21,6 @@ object TokenString:
    *  @param token authentication token string.
    *  @throws IllegalArgumentException if invalid arguments are given.
    */
-  def unsafe(token: String): TokenString = TokenString(token) match
+  def unsafe(token: String): TokenString = apply(token) match
     case Some(value) => value
     case None        => throw new IllegalArgumentException()

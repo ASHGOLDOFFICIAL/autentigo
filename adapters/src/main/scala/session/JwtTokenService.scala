@@ -3,13 +3,13 @@ package adapters
 package session
 
 
-import domain.token.{
-  AccessTokenPayload,
-  IdTokenPayload,
-  RefreshTokenPayload,
-  TokenString,
-}
-import domain.user.{Email, User, UserId}
+import domain.token.AccessTokenPayload
+import domain.token.IdTokenPayload
+import domain.token.RefreshTokenPayload
+import domain.token.TokenString
+import domain.user.Email
+import domain.user.User
+import domain.user.UserId
 
 import cats.Monad
 import cats.data.OptionT
@@ -17,10 +17,15 @@ import cats.effect.Clock
 import cats.syntax.all.given
 import io.circe.parser.decode
 import io.circe.syntax.given
-import io.circe.{Decoder, Encoder}
+import io.circe.Decoder
+import io.circe.Encoder
 import org.typelevel.log4cats.Logger.optionTLogger
-import org.typelevel.log4cats.{Logger, LoggerFactory}
-import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim, JwtOptions}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.LoggerFactory
+import pdi.jwt.JwtAlgorithm
+import pdi.jwt.JwtCirce
+import pdi.jwt.JwtClaim
+import pdi.jwt.JwtOptions
 
 import java.time.Instant
 import scala.concurrent.duration.FiniteDuration
@@ -90,7 +95,8 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
       aud = "?", // TODO: fix
       exp = exp,
       iat = iat,
-      email = user.email)
+      email = user.email,
+    )
 
   override def generateRefreshToken(user: User): F[TokenString] =
     Clock[F].realTimeInstant.map { now =>

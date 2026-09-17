@@ -3,12 +3,10 @@ package api
 package user
 
 
-import org.aulune.authentigo.application.user.{
-  ConfirmPasswordResetRequest,
-  CreateUserRequest,
-  RequestPasswordResetRequest,
-  UserInfo,
-}
+import org.aulune.authentigo.application.user.ConfirmPasswordResetRequest
+import org.aulune.authentigo.application.user.CreateUserRequest
+import org.aulune.authentigo.application.user.RequestPasswordResetRequest
+import org.aulune.authentigo.application.user.UserInfo
 
 import java.util.UUID
 

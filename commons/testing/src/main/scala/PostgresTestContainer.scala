@@ -48,7 +48,8 @@ trait PostgresTestContainer extends AsyncFreeSpec with TestContainerForEach:
             container.jdbcUrl,
             container.username,
             container.password,
-            changelogPath)
+            changelogPath,
+          )
           result <- transactor.use { t =>
             for
               service <- init(t)

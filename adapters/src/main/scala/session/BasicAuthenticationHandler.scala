@@ -2,7 +2,9 @@ package org.aulune.authentigo
 package adapters
 package session
 
-import domain.user.{Email, User}
+
+import domain.user.Email
+import domain.user.User
 
 
 /** Service that manages basic authentication via email and password.

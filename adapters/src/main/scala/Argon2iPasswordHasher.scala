@@ -2,9 +2,11 @@ package org.aulune.authentigo
 package adapters
 
 
-import cats.effect.{Resource, Sync}
+import cats.effect.Resource
+import cats.effect.Sync
 import cats.syntax.all.*
-import de.mkammerer.argon2.{Argon2, Argon2Factory}
+import de.mkammerer.argon2.Argon2
+import de.mkammerer.argon2.Argon2Factory
 
 
 /** Password hashing service with Argon2i as its hashing algorithm. */

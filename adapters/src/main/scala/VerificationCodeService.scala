@@ -1,7 +1,9 @@
 package org.aulune.authentigo
 package adapters
 
-import domain.token.{TotpSecret, VerificationCode}
+
+import domain.token.TotpSecret
+import domain.token.VerificationCode
 
 
 /** Generates secrets, and generates and verifies short-lived codes for a given
