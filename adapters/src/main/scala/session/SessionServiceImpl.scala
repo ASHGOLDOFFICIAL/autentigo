@@ -4,9 +4,13 @@ package session
 
 
 import application.session.CreateSessionRequest.BasicAuthentication
-import application.session.{CreateSessionRequest, Session, SessionService}
+import application.session.CreateSessionRequest
+import application.session.Session
+import application.session.SessionService
 import domain.token.TokenString
-import domain.user.{Email, User, UserRepository}
+import domain.user.Email
+import domain.user.User
+import domain.user.UserRepository
 
 import cats.MonadThrow
 import cats.data.EitherT
@@ -14,7 +18,8 @@ import cats.syntax.all.given
 import org.aulune.commons.errors.ErrorResponse
 import org.typelevel.log4cats.Logger.eitherTLogger
 import org.typelevel.log4cats.syntax.given
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.LoggerFactory
 
 
 /** [[SessionService]] implementation.
@@ -53,7 +58,8 @@ final class SessionServiceImpl[F[_]: MonadThrow: LoggerFactory](
     token <- EitherT.fromOption(TokenString(refreshToken), Unauthenticated)
     userId <- EitherT.fromOptionF(
       refreshTokenService.decodeRefreshToken(token),
-      Unauthenticated)
+      Unauthenticated,
+    )
     user <- EitherT.fromOptionF(repo.get(userId), Unauthenticated)
     session <- EitherT.right(makeSessionForUser(user))
   yield session).value.handleErrorWith(handleInternal)
@@ -70,7 +76,8 @@ final class SessionServiceImpl[F[_]: MonadThrow: LoggerFactory](
     yield Session(
       accessToken = accessToken,
       idToken = idToken,
-      refreshToken = refreshToken)
+      refreshToken = refreshToken,
+    )
 
   /** Delegates login request to a service that can manage it.
    *  @param request login request.
@@ -84,12 +91,14 @@ final class SessionServiceImpl[F[_]: MonadThrow: LoggerFactory](
         email <- EitherT
           .fromOption(
             Email(email),
-            SessionServiceErrorResponses.InvalidCredentials)
+            SessionServiceErrorResponses.InvalidCredentials,
+          )
           .leftSemiflatTap(_ => warn"Login with invalid email: $request.")
         user <- EitherT
           .fromOptionF(
             basicAuthHandler.authenticate(email, password),
-            SessionServiceErrorResponses.InvalidCredentials)
+            SessionServiceErrorResponses.InvalidCredentials,
+          )
           .leftSemiflatTap(_ => warn"Basic authentication failed: $request.")
       yield user
 

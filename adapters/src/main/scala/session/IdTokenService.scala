@@ -3,7 +3,8 @@ package adapters
 package session
 
 
-import domain.token.{IdTokenPayload, TokenString}
+import domain.token.IdTokenPayload
+import domain.token.TokenString
 import domain.user.User
 
 

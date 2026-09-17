@@ -3,25 +3,24 @@ package errors
 package adapters.tapir
 
 
-import errors.ErrorStatus.{
-  Aborted,
-  AlreadyExists,
-  Cancelled,
-  DataLoss,
-  DeadlineExceeded,
-  FailedPrecondition,
-  Internal,
-  InvalidArgument,
-  NotFound,
-  OutOfRange,
-  PermissionDenied,
-  ResourceExhausted,
-  Unauthenticated,
-  Unavailable,
-  Unimplemented,
-  Unknown,
-}
-import errors.{ErrorResponse, ErrorStatus}
+import errors.ErrorStatus.Aborted
+import errors.ErrorStatus.AlreadyExists
+import errors.ErrorStatus.Cancelled
+import errors.ErrorStatus.DataLoss
+import errors.ErrorStatus.DeadlineExceeded
+import errors.ErrorStatus.FailedPrecondition
+import errors.ErrorStatus.Internal
+import errors.ErrorStatus.InvalidArgument
+import errors.ErrorStatus.NotFound
+import errors.ErrorStatus.OutOfRange
+import errors.ErrorStatus.PermissionDenied
+import errors.ErrorStatus.ResourceExhausted
+import errors.ErrorStatus.Unauthenticated
+import errors.ErrorStatus.Unavailable
+import errors.ErrorStatus.Unimplemented
+import errors.ErrorStatus.Unknown
+import errors.ErrorResponse
+import errors.ErrorStatus
 
 import sttp.model.StatusCode
 

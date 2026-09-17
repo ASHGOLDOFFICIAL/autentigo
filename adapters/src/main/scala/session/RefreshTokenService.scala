@@ -4,7 +4,8 @@ package session
 
 
 import domain.token.TokenString
-import domain.user.{User, UserId}
+import domain.user.User
+import domain.user.UserId
 
 
 /** Service that generates and decodes refresh tokens.

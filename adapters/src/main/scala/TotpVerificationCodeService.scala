@@ -2,15 +2,19 @@ package org.aulune.authentigo
 package adapters
 
 
-import domain.token.{TotpSecret, VerificationCode}
+import domain.token.TotpSecret
+import domain.token.VerificationCode
 
-import cats.effect.{Clock, Sync}
+import cats.effect.Clock
+import cats.effect.Sync
 import cats.syntax.all.given
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator
 
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
-import javax.crypto.{KeyGenerator, Mac, SecretKey}
+import javax.crypto.KeyGenerator
+import javax.crypto.Mac
+import javax.crypto.SecretKey
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters.*
 

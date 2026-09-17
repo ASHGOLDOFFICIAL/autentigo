@@ -3,7 +3,9 @@ package adapters
 package session
 
 
-import domain.user.{Email, User, UserRepository}
+import domain.user.Email
+import domain.user.User
+import domain.user.UserRepository
 
 import cats.Monad
 import cats.data.OptionT

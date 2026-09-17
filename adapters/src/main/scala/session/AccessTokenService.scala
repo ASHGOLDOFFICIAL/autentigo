@@ -3,8 +3,10 @@ package adapters
 package session
 
 
-import domain.token.{AccessTokenPayload, TokenString}
-import domain.user.{User, UserId}
+import domain.token.AccessTokenPayload
+import domain.token.TokenString
+import domain.user.User
+import domain.user.UserId
 
 
 /** Service that generates and decodes access tokens. Access token payload

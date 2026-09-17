@@ -16,6 +16,6 @@ object TotpSecret:
    *  @param secret secret.
    *  @throws IllegalArgumentException if invalid arguments are given.
    */
-  def unsafe(secret: String): TotpSecret = TotpSecret(secret) match
+  def unsafe(secret: String): TotpSecret = apply(secret) match
     case Some(value) => value
     case None        => throw new IllegalArgumentException()

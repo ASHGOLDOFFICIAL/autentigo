@@ -4,7 +4,10 @@ package session
 
 
 import domain.token.TotpSecret
-import domain.user.{Email, User, UserId, UserRepository}
+import domain.user.Email
+import domain.user.User
+import domain.user.UserId
+import domain.user.UserRepository
 
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
@@ -31,7 +34,8 @@ final class BasicAuthenticationHandlerImplTest
     BasicAuthenticationHandlerImpl(
       repo = mockRepo,
       hasher = mockHasher,
-    ))
+    ),
+  )
 
   private val user = User.unsafe(
     id = UserId.unsafe("a18432b9-9552-4b95-8e8a-e36dba18c1ac"),

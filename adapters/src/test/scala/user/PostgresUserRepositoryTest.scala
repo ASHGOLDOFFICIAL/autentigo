@@ -4,7 +4,10 @@ package user
 
 
 import domain.token.TotpSecret
-import domain.user.{Email, User, UserConstraint, UserId}
+import domain.user.Email
+import domain.user.User
+import domain.user.UserConstraint
+import domain.user.UserId
 
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
@@ -105,7 +108,8 @@ final class PostgresUserRepositoryTest
               testUser.id,
               "new_hash",
               newSecret,
-              testUser.totpSecret)
+              testUser.totpSecret,
+            )
             user <- repo.get(testUser.id)
           yield (result, user) shouldBe (true, Some(expectedUser))
       }
@@ -117,7 +121,8 @@ final class PostgresUserRepositoryTest
             testUser.id,
             "new_hash",
             TotpSecret.unsafe("new_totp_secret"),
-            TotpSecret.unsafe("wrong_secret"))
+            TotpSecret.unsafe("wrong_secret"),
+          )
           user <- repo.get(testUser.id)
         yield (result, user) shouldBe (false, Some(testUser))
       }
@@ -127,7 +132,8 @@ final class PostgresUserRepositoryTest
             testUser.id,
             "new_hash",
             TotpSecret.unsafe("new_totp_secret"),
-            testUser.totpSecret)
+            testUser.totpSecret,
+          )
         yield result shouldBe false
       }
     }

@@ -5,7 +5,11 @@ package user
 
 import UserMetas.given
 import domain.token.TotpSecret
-import domain.user.{Email, User, UserConstraint, UserId, UserRepository}
+import domain.user.Email
+import domain.user.User
+import domain.user.UserConstraint
+import domain.user.UserId
+import domain.user.UserRepository
 
 import cats.effect.MonadCancelThrow
 import cats.syntax.all.given
@@ -119,4 +123,5 @@ private final class PostgresUserRepository[F[_]: MonadCancelThrow](
     id = id,
     email = email,
     hashedPassword = password,
-    totpSecret = totpSecret)
+    totpSecret = totpSecret,
+  )

@@ -4,12 +4,12 @@ package session
 
 
 import io.circe.generic.extras.Configuration
-import io.circe.generic.extras.semiauto.{
-  deriveConfiguredDecoder,
-  deriveConfiguredEncoder,
-}
-import io.circe.{Decoder, Encoder}
-import org.aulune.authentigo.application.session.{CreateSessionRequest, Session}
+import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
+import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
+import io.circe.Decoder
+import io.circe.Encoder
+import org.aulune.authentigo.application.session.CreateSessionRequest
+import org.aulune.authentigo.application.session.Session
 
 
 /** [[Decoder]] and [[Encoder]] instances for [[SessionController]]. */

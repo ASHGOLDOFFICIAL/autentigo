@@ -18,6 +18,6 @@ object VerificationCode:
    *  @param code code.
    *  @throws IllegalArgumentException if invalid arguments are given.
    */
-  def unsafe(code: String): VerificationCode = VerificationCode(code) match
+  def unsafe(code: String): VerificationCode = apply(code) match
     case Some(value) => value
     case None        => throw new IllegalArgumentException()

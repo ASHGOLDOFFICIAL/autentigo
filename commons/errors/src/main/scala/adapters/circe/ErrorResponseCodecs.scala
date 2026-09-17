@@ -3,11 +3,16 @@ package errors
 package adapters.circe
 
 
-import errors.{ErrorDetails, ErrorInfo, ErrorReason, ErrorResponse, ErrorStatus}
+import errors.ErrorDetails
+import errors.ErrorInfo
+import errors.ErrorReason
+import errors.ErrorResponse
+import errors.ErrorStatus
 
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredEncoder
-import io.circe.{Decoder, Encoder}
+import io.circe.Decoder
+import io.circe.Encoder
 
 import scala.util.Failure
 

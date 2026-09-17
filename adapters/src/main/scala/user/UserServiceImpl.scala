@@ -5,22 +5,20 @@ package user
 
 import session.AccessTokenService
 
-import application.user.{
-  ConfirmPasswordResetRequest,
-  CreateUserRequest,
-  RequestPasswordResetRequest,
-  UserInfo,
-  UserService,
-}
-import domain.token.{TokenString, TotpSecret, VerificationCode}
-import domain.user.{
-  Email,
-  User,
-  UserConstraint,
-  UserId,
-  UserRepository,
-  UserValidationError,
-}
+import application.user.ConfirmPasswordResetRequest
+import application.user.CreateUserRequest
+import application.user.RequestPasswordResetRequest
+import application.user.UserInfo
+import application.user.UserService
+import domain.token.TokenString
+import domain.token.TotpSecret
+import domain.token.VerificationCode
+import domain.user.Email
+import domain.user.User
+import domain.user.UserConstraint
+import domain.user.UserId
+import domain.user.UserRepository
+import domain.user.UserValidationError
 
 import cats.MonadThrow
 import cats.data.EitherT
@@ -29,7 +27,8 @@ import cats.syntax.all.given
 import org.aulune.commons.errors.ErrorResponse
 import org.typelevel.log4cats.Logger.eitherTLogger
 import org.typelevel.log4cats.syntax.given
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.LoggerFactory
 
 
 /** [[UserService]] implementation.
@@ -63,7 +62,8 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
       user
         .update(hashedPassword = Some(hashed))
         .toEither
-        .leftMap(UserServiceErrorResponses.invalidRegistrationDetails))
+        .leftMap(UserServiceErrorResponses.invalidRegistrationDetails),
+    )
     persisted <- EitherT(repo.persist(withPassword).map {
       case Right(u)                         => u.asRight[ErrorResponse]
       case Left(UserConstraint.UniqueEmail) =>
@@ -84,14 +84,17 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
     token <- EitherT.fromOption(TokenString(accessToken), Unauthenticated)
     callerId <- EitherT.fromOptionF(
       accessTokenService.decodeAccessToken(token),
-      Unauthenticated)
+      Unauthenticated,
+    )
     _ <- EitherT.cond[F](
       callerId == userId,
       (),
-      UserServiceErrorResponses.PermissionDenied)
+      UserServiceErrorResponses.PermissionDenied,
+    )
     user <- EitherT.fromOptionF(
       repo.get(userId),
-      UserServiceErrorResponses.UserNotFound)
+      UserServiceErrorResponses.UserNotFound,
+    )
   yield toUserInfo(user)).value.handleErrorWith(handleInternal)
 
   override def requestPasswordReset(
@@ -113,15 +116,19 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
       eitherTLogger.info(s"Password reset confirmation for: ${request.email}")
     email <- EitherT.fromOption(
       Email(request.email),
-      UserServiceErrorResponses.InvalidPasswordReset)
+      UserServiceErrorResponses.InvalidPasswordReset,
+    )
     user <- EitherT.fromOptionF(
       repo.getByEmail(email),
-      UserServiceErrorResponses.InvalidPasswordReset)
+      UserServiceErrorResponses.InvalidPasswordReset,
+    )
     code <- EitherT.fromOption(
       VerificationCode(request.code),
-      UserServiceErrorResponses.InvalidPasswordReset)
+      UserServiceErrorResponses.InvalidPasswordReset,
+    )
     valid <- EitherT.right[ErrorResponse](
-      codeService.verifyCode(user.totpSecret, code))
+      codeService.verifyCode(user.totpSecret, code),
+    )
     _ <-
       EitherT.cond[F](valid, (), UserServiceErrorResponses.InvalidPasswordReset)
     newHash <-
@@ -132,11 +139,14 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
         user.id,
         newHash,
         newSecret,
-        expectedTotpSecret = user.totpSecret))
+        expectedTotpSecret = user.totpSecret,
+      ),
+    )
     _ <- EitherT.cond[F](
       updated,
       (),
-      UserServiceErrorResponses.InvalidPasswordReset)
+      UserServiceErrorResponses.InvalidPasswordReset,
+    )
     _ <- eitherTLogger.info(s"Password reset completed for user: ${user.id}")
   yield ()).value.handleErrorWith(handleInternal)
 
@@ -147,7 +157,8 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
       _ <- emailSender.send(
         user.email,
         PasswordResetEmail.Subject,
-        PasswordResetEmail.body(code))
+        PasswordResetEmail.body(code),
+      )
     yield ()
 
   /** Makes [[UserInfo]] out of a domain [[User]]. */
@@ -166,7 +177,8 @@ final class UserServiceImpl[F[_]: MonadThrow: UUIDGen: LoggerFactory](
   ): Either[ErrorResponse, User] = Email(request.email)
     .toValidNec(UserValidationError.InvalidEmail)
     .andThen(email =>
-      User.create(id = id, email = email, totpSecret = totpSecret))
+      User.create(id = id, email = email, totpSecret = totpSecret),
+    )
     .toEither
     .leftMap(UserServiceErrorResponses.invalidRegistrationDetails)
 
