@@ -4,10 +4,17 @@ package user
 
 
 import CirceCodecs.given
-import Examples.{CreateUserRequestExample, UserInfoExample}
+import Examples.{
+  ConfirmPasswordResetRequestExample,
+  CreateUserRequestExample,
+  RequestPasswordResetRequestExample,
+  UserInfoExample,
+}
 import TapirSchemas.given
 import org.aulune.authentigo.application.user.{
+  ConfirmPasswordResetRequest,
   CreateUserRequest,
+  RequestPasswordResetRequest,
   UserInfo,
   UserService,
 }
@@ -66,8 +73,40 @@ final class UserController[F[_]: Functor](
       yield result.leftMap(ErrorStatusCodeMapper.toApiResponse)
     }
 
+  private val requestPasswordResetEndpoint = endpoint.post
+    .in(collection + ":requestPasswordReset")
+    .in(jsonBody[RequestPasswordResetRequest]
+      .description("Email to send the reset code to.")
+      .example(RequestPasswordResetRequestExample))
+    .out(statusCode(StatusCode.Ok))
+    .errorOut(statusCode.and(jsonBody[ErrorResponse]))
+    .name("RequestPasswordReset")
+    .summary("Request a password reset code be emailed to the given address.")
+    .tag(tag)
+    .serverLogic { request =>
+      for result <- service.requestPasswordReset(request)
+      yield result.leftMap(ErrorStatusCodeMapper.toApiResponse)
+    }
+
+  private val confirmPasswordResetEndpoint = endpoint.post
+    .in(collection + ":confirmPasswordReset")
+    .in(jsonBody[ConfirmPasswordResetRequest]
+      .description("Email, emailed code, and new password.")
+      .example(ConfirmPasswordResetRequestExample))
+    .out(statusCode(StatusCode.Ok))
+    .errorOut(statusCode.and(jsonBody[ErrorResponse]))
+    .name("ConfirmPasswordReset")
+    .summary("Confirm a password reset using the emailed code.")
+    .tag(tag)
+    .serverLogic { request =>
+      for result <- service.confirmPasswordReset(request)
+      yield result.leftMap(ErrorStatusCodeMapper.toApiResponse)
+    }
+
   /** Returns Tapir endpoints for the `users` resource. */
   def endpoints: List[ServerEndpoint[Any, F]] = List(
     createUserEndpoint,
     getUserEndpoint,
+    requestPasswordResetEndpoint,
+    confirmPasswordResetEndpoint,
   )

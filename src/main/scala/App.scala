@@ -1,7 +1,11 @@
 package org.aulune.authentigo
 
 
-import adapters.Argon2iPasswordHasher
+import adapters.{
+  Argon2iPasswordHasher,
+  SmtpEmailSender,
+  TotpVerificationCodeService,
+}
 import adapters.session.{
   BasicAuthenticationHandlerImpl,
   JwtTokenService,
@@ -55,11 +59,26 @@ object App extends IOApp.Simple:
       hasher <- Argon2iPasswordHasher.build[IO]
       basicHandler = new BasicAuthenticationHandlerImpl[IO](userRepo, hasher)
       tokenServ = new JwtTokenService[IO](
-        config.services.issuer,
-        config.services.key,
-        accessExpiration = config.services.accessExpiration,
-        refreshExpiration = config.services.refreshExpiration)
-      userService = new UserServiceImpl[IO](userRepo, hasher, tokenServ)
+        config.services.jwt.issuer,
+        config.services.jwt.key,
+        accessExpiration = config.services.jwt.accessExpiration,
+        refreshExpiration = config.services.jwt.refreshExpiration,
+      )
+      codeService = new TotpVerificationCodeService[IO](
+        config.services.passwordReset.expiration)
+      emailSender <- SmtpEmailSender.build[IO](
+        host = config.services.smtp.host,
+        port = config.services.smtp.port,
+        username = config.services.smtp.username,
+        password = config.services.smtp.password,
+        fromAddress = config.services.smtp.fromAddress,
+      )
+      userService = new UserServiceImpl[IO](
+        userRepo,
+        hasher,
+        tokenServ,
+        codeService,
+        emailSender)
       sessionService = new SessionServiceImpl[IO](
         userRepo,
         basicHandler,

@@ -65,6 +65,19 @@ object UserServiceErrorResponses:
     ),
   )
 
+  /** The email isn't registered, or the code is missing, incorrect, or has
+   *  expired.
+   */
+  val InvalidPasswordReset: ErrorResponse = ErrorResponse(
+    status = ErrorStatus.InvalidArgument,
+    message = "Could not reset password with the given information.",
+    details = ErrorDetails(
+      info = ErrorInfo(
+        reason = UserServiceError.InvalidPasswordReset,
+        domain = Domain).some,
+    ),
+  )
+
   /** Makes one error response out of validation errors.
    *  @param errs user validation errors.
    */

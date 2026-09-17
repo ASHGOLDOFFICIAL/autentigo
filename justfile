@@ -21,3 +21,6 @@ up:
 
 down:
     podman-compose down
+
+db-reset:
+    podman-compose down -v

@@ -22,3 +22,8 @@ enum UserServiceError(val reason: String) extends ErrorReason(reason):
 
   /** Email already taken. */
   case EmailAlreadyTaken extends UserServiceError("EMAIL_ALREADY_TAKEN")
+
+  /** A password reset could not be completed: the email isn't registered, or
+   *  the code is missing, incorrect, or expired.
+   */
+  case InvalidPasswordReset extends UserServiceError("INVALID_PASSWORD_RESET")

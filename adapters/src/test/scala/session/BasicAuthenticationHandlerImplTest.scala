@@ -3,6 +3,7 @@ package adapters
 package session
 
 
+import domain.token.TotpSecret
 import domain.user.{Email, User, UserId, UserRepository}
 
 import cats.effect.IO
@@ -36,6 +37,7 @@ final class BasicAuthenticationHandlerImplTest
     id = UserId.unsafe("a18432b9-9552-4b95-8e8a-e36dba18c1ac"),
     email = Email.unsafe("user@example.com"),
     hashedPassword = Option("hash"),
+    totpSecret = TotpSecret.unsafe("totp_secret"),
   )
   private val password = "password"
 
