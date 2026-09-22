@@ -59,9 +59,10 @@ object App extends IOApp.Simple:
       userRepo <- PostgresUserRepository.build[IO](transactor)
       hasher <- Argon2iPasswordHasher.build[IO]
       basicHandler = new BasicAuthenticationHandlerImpl[IO](userRepo, hasher)
-      tokenServ = new JwtTokenService[IO](
-        config.services.jwt.issuer,
-        config.services.jwt.key,
+      tokenServ <- JwtTokenService.build[IO](
+        issuer = config.services.jwt.issuer,
+        privateKeyPem = config.services.jwt.privateKeyPem,
+        publicKeyPem = config.services.jwt.publicKeyPem,
         accessExpiration = config.services.jwt.accessExpiration,
         refreshExpiration = config.services.jwt.refreshExpiration,
       )

@@ -124,6 +124,7 @@ lazy val adapters = (project in file("adapters"))
       "com.comcast"          %% "ip4s-core"        % ip4sVersion,
       "com.eatthepath"        % "java-otp"         % javaOtpVersion,
       "com.github.jwt-scala" %% "jwt-circe"        % jwtVersion,
+      "com.nimbusds"          % "nimbus-jose-jwt"  % nimbusJoseJwtVersion,
       "de.mkammerer"          % "argon2-jvm-nolibs" % argon2Version,
       "jakarta.mail"          % "jakarta.mail-api" % jakartaMailVersion,
       "org.eclipse.angus"     % "angus-mail"       % angusMailVersion % Runtime,
@@ -169,6 +170,7 @@ val liquibaseVersion = "4.29.2"
 val http4sVersion = "0.23.30"
 val log4catsVersion = "2.7.1"
 val logbackVersion = "1.5.18"
+val nimbusJoseJwtVersion = "10.4.2"
 val postgresqlVersion = "42.7.7"
 val pureconfigVersion = "0.17.9"
 val scalamockVersion = "7.4.1"

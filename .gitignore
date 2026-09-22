@@ -19,3 +19,5 @@ temp/
 
 ### Secrets ###
 .env
+jwt-private.pem
+jwt-public.pem

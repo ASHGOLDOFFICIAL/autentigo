@@ -14,7 +14,9 @@ import domain.user.UserId
 import cats.Monad
 import cats.data.OptionT
 import cats.effect.Clock
+import cats.effect.Sync
 import cats.syntax.all.given
+import com.nimbusds.jose.jwk.JWK
 import io.circe.parser.decode
 import io.circe.syntax.given
 import io.circe.Decoder
@@ -27,6 +29,8 @@ import pdi.jwt.JwtCirce
 import pdi.jwt.JwtClaim
 import pdi.jwt.JwtOptions
 
+import java.security.interfaces.ECPrivateKey
+import java.security.interfaces.ECPublicKey
 import java.time.Instant
 import scala.concurrent.duration.FiniteDuration
 
@@ -34,14 +38,17 @@ import scala.concurrent.duration.FiniteDuration
 /** Implementation of [[AccessTokenService]], [[IdTokenService]] and
  *  [[RefreshTokenService]].
  *  @param issuer what to put in `iss`.
- *  @param secretKey secret key to encode tokens.
+ *  @param privateKey EC private key used to sign tokens.
+ *  @param publicKey EC public key used to verify tokens (the counterpart of
+ *    `privateKey`).
  *  @param accessExpiration expiration time for access and ID tokens.
  *  @param refreshExpiration expiration time for refresh tokens.
  *  @tparam F effect type.
  */
 final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
     issuer: String,
-    secretKey: String,
+    privateKey: ECPrivateKey,
+    publicKey: ECPublicKey,
     accessExpiration: FiniteDuration,
     refreshExpiration: FiniteDuration,
 ) extends AccessTokenService[F]
@@ -52,12 +59,12 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
 
   // Expiration checks are disable to do them manually
   private val options = JwtOptions(expiration = false)
-  private val algo = JwtAlgorithm.HS256
+  private val algo = JwtAlgorithm.ES256
 
   override def generateAccessToken(user: User): F[TokenString] =
     Clock[F].realTimeInstant.map { now =>
       val payload = makeAccessTokenPayload(user, now, maxAccessExp)
-      val claim = JwtCirce.encode(payload.asJson, secretKey, algo)
+      val claim = JwtCirce.encode(payload.asJson, privateKey, algo)
       // It shouldn't be empty, otherwise it's exceptional situation.
       TokenString.unsafe(claim)
     }
@@ -80,7 +87,7 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
   override def generateIdToken(user: User): F[TokenString] =
     Clock[F].realTimeInstant.map { now =>
       val payload = makeIdTokenPayload(user, now)
-      val claim = JwtCirce.encode(payload.asJson, secretKey, algo)
+      val claim = JwtCirce.encode(payload.asJson, privateKey, algo)
       // It shouldn't be empty, otherwise it's exceptional situation.
       TokenString.unsafe(claim)
     }
@@ -101,7 +108,7 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
   override def generateRefreshToken(user: User): F[TokenString] =
     Clock[F].realTimeInstant.map { now =>
       val payload = makeRefreshTokenPayload(user, now)
-      val claim = JwtCirce.encode(payload.asJson, secretKey, algo)
+      val claim = JwtCirce.encode(payload.asJson, privateKey, algo)
       // It shouldn't be empty, otherwise it's exceptional situation.
       TokenString.unsafe(claim)
     }
@@ -149,7 +156,7 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
    *  @param token token.
    */
   private def decodeClaim(token: TokenString): Option[JwtClaim] = JwtCirce
-    .decode(token, secretKey, Seq(algo), options)
+    .decode(token, publicKey, Seq(algo), options)
     .toOption
 
   /** Validates the expiration claim against the current time.
@@ -188,3 +195,35 @@ final class JwtTokenService[F[_]: Monad: Clock: LoggerFactory](
   private given Decoder[UserId] = Decoder.decodeUUID.map(UserId.apply)
   private given Encoder[UserId] = Encoder.encodeUUID.contramap(identity)
   private given Encoder[Email] = Encoder.encodeString.contramap(identity)
+
+
+object JwtTokenService:
+  /** Builds an instance from PEM-encoded EC keys.
+   *  @param issuer what to put in `iss`.
+   *  @param privateKeyPem PEM-encoded EC private key (PKCS8).
+   *  @param publicKeyPem PEM-encoded EC public key (SPKI).
+   *  @param accessExpiration expiration time for access and ID tokens.
+   *  @param refreshExpiration expiration time for refresh tokens.
+   *  @tparam F effect type.
+   *  @throws IllegalArgumentException if either PEM can't be parsed as an EC
+   *    key.
+   */
+  def build[F[_]: Sync: Clock: LoggerFactory](
+      issuer: String,
+      privateKeyPem: PemKey,
+      publicKeyPem: PemKey,
+      accessExpiration: FiniteDuration,
+      refreshExpiration: FiniteDuration,
+  ): F[JwtTokenService[F]] = Sync[F].delay {
+    val privateKey =
+      JWK.parseFromPEMEncodedObjects(privateKeyPem).toECKey.toECPrivateKey
+    val publicKey =
+      JWK.parseFromPEMEncodedObjects(publicKeyPem).toECKey.toECPublicKey
+    new JwtTokenService[F](
+      issuer,
+      privateKey,
+      publicKey,
+      accessExpiration,
+      refreshExpiration,
+    )
+  }
