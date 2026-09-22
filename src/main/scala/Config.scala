@@ -1,6 +1,7 @@
 package org.aulune.authentigo
 
 
+import adapters.PemKey
 import domain.user.Email
 
 import com.comcast.ip4s.Host
@@ -37,13 +38,15 @@ object Config:
   object Services:
     /** Config for JWT tokens.
      *  @param issuer value to use in `iss` claims.
-     *  @param key secret key to use for JWT tokens.
+     *  @param privateKeyPem PEM-encoded EC private key (PKCS8).
+     *  @param publicKeyPem PEM-encoded EC public key (SPKI).
      *  @param accessExpiration time-to-live for access and ID tokens.
      *  @param refreshExpiration time-to-live for refresh tokens.
      */
     final case class Jwt(
         issuer: String,
-        key: String,
+        privateKeyPem: PemKey,
+        publicKeyPem: PemKey,
         accessExpiration: FiniteDuration,
         refreshExpiration: FiniteDuration,
     )
@@ -87,3 +90,6 @@ object Config:
       case Some(e) => Right(e)
       case None    => Left(ExceptionThrown(new Exception("Incorrect email")))
   }
+
+  given ConfigReader[PemKey] =
+    ConfigReader.fromString(str => Right(PemKey(str)))

@@ -18,6 +18,7 @@
           packages = with pkgs; [
             just
             libargon2
+            openssl
             podman
             podman-compose
             sbt
