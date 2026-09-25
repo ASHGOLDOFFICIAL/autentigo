@@ -215,10 +215,13 @@ object JwtTokenService:
       accessExpiration: FiniteDuration,
       refreshExpiration: FiniteDuration,
   ): F[JwtTokenService[F]] = Sync[F].delay {
-    val privateKey =
-      JWK.parseFromPEMEncodedObjects(privateKeyPem).toECKey.toECPrivateKey
-    val publicKey =
-      JWK.parseFromPEMEncodedObjects(publicKeyPem).toECKey.toECPublicKey
+    val keyPair = JWK
+      .parseFromPEMEncodedObjects(
+        privateKeyPem + "\n" + publicKeyPem,
+      )
+      .toECKey
+    val privateKey = keyPair.toECPrivateKey
+    val publicKey = keyPair.toECPublicKey
     new JwtTokenService[F](
       issuer,
       privateKey,

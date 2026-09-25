@@ -125,6 +125,7 @@ lazy val adapters = (project in file("adapters"))
       "com.eatthepath"        % "java-otp"         % javaOtpVersion,
       "com.github.jwt-scala" %% "jwt-circe"        % jwtVersion,
       "com.nimbusds"          % "nimbus-jose-jwt"  % nimbusJoseJwtVersion,
+      "org.bouncycastle"      % "bcpkix-jdk18on"   % bouncycastleVersion % Runtime,
       "de.mkammerer"          % "argon2-jvm-nolibs" % argon2Version,
       "jakarta.mail"          % "jakarta.mail-api" % jakartaMailVersion,
       "org.eclipse.angus"     % "angus-mail"       % angusMailVersion % Runtime,
@@ -155,6 +156,7 @@ lazy val api = (project in file("api"))
 
 val angusMailVersion = "2.0.4"
 val argon2Version = "2.12"
+val bouncycastleVersion = "1.79"
 val catsEffectTestingVersion = "1.6.0"
 val catsEffectVersion = "3.6.3"
 val catsVersion = "2.13.0"
